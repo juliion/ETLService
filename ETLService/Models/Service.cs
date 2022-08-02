@@ -4,6 +4,7 @@ using System.Text;
 
 namespace ETLService.Models
 {
+    [Serializable]
     public class Service
     {
         public string Name { get; set; }

@@ -4,6 +4,7 @@ using System.Text;
 
 namespace ETLService.Models
 {
+    [Serializable]
     public class TransactionsByCity
     {
         public string City { get; set; }
