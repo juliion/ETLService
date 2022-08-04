@@ -24,17 +24,38 @@ namespace ETLService.Converters
         }
         public Transaction StrToTransaction(string strTransaction)
         {
+            
             string[] fields = strTransaction.Split(new char[] { ' ', ',', '“', '”' }, StringSplitOptions.RemoveEmptyEntries);
-            Transaction transaction = new Transaction()
+            string name = fields[_fieldsIndices["name"]] + " " + fields[_fieldsIndices["surname"]];
+            string city = fields[_fieldsIndices["city"]];
+            decimal payment;
+            DateTime date;
+            long accountNum;
+            string service = fields[_fieldsIndices["service"]];
+
+            bool nameIsValid = name != " ";
+            bool cityIsValid = city != " ";
+            bool paymentParsed = decimal.TryParse(fields[_fieldsIndices["payment"]], NumberStyles.Any, CultureInfo.InvariantCulture, out payment);
+            bool dateParsed = DateTime.TryParse(fields[_fieldsIndices["date"]], out date);
+            bool accountNumParsed = long.TryParse(fields[_fieldsIndices["accountNum"]], out accountNum);
+            bool serviceIsValid = service != " ";
+
+            bool isValid = nameIsValid && cityIsValid && paymentParsed && dateParsed && accountNumParsed && serviceIsValid;
+
+            if (isValid)
             {
-                Name = fields[_fieldsIndices["name"]] + " " + fields[_fieldsIndices["surname"]],
-                City = fields[_fieldsIndices["city"]],
-                Payment = decimal.Parse(fields[_fieldsIndices["payment"]], CultureInfo.InvariantCulture),
-                Date = DateTime.Parse(fields[_fieldsIndices["date"]]),
-                AccountNumber = long.Parse(fields[_fieldsIndices["accountNum"]]),
-                Service = fields[_fieldsIndices["service"]]
-            };
-            return transaction;
+                return new Transaction()
+                {
+                    Name = name,
+                    City = city,
+                    Payment = payment,
+                    Date = date,
+                    AccountNumber = accountNum,
+                    Service = service
+                };
+            }
+            else
+                throw new Exception("Row isn't valid");
         }
     }
 }
