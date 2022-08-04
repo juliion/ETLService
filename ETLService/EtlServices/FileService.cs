@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.IO;
 using System.Collections.Generic;
 using System.Text;
@@ -19,9 +20,11 @@ namespace ETLService.EtlServices
             _currentFileNumber = 0;
         }
 
-        public string[] GetFilesFromInputFolder()
+        public List<string> GetFilesFromInputFolder()
         {
-            return Directory.GetFiles(_inputPath);
+            var filesArr = Directory.GetFiles(_inputPath);
+            var filesList = new List<string>(filesArr);
+            return filesList.Where((fname => FileHasTxtExtension(fname) || FileHasCvsExtension(fname))).ToList();
         }
         public void CreateSubfolder()
         {
@@ -36,13 +39,14 @@ namespace ETLService.EtlServices
             return filePath;
         }
 
-        public FileReaderCreator GetFileReaderCreator(string fname)
+        private bool FileHasTxtExtension(string filename) => Path.GetExtension(filename) == ".txt";
+        private bool FileHasCvsExtension(string filename) => Path.GetExtension(filename) == ".csv";
+        public FileReaderCreator GetFileReaderCreator(string filename)
         {
-            string extension = Path.GetExtension(fname);
             FileReaderCreator readerCreator = null;
-            if (extension == ".txt")
+            if (FileHasTxtExtension(filename))
                 readerCreator = new TxtReaderCreator();
-            else if (extension == ".csv")
+            else if (FileHasCvsExtension(filename))
                 readerCreator = new CsvReaderCreator();
             return readerCreator;
         }

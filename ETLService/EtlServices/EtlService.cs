@@ -22,7 +22,7 @@ namespace ETLService.EtlServices
         public void Run()
         {
             _fileService.CreateSubfolder();
-            string[] inputFiles = _fileService.GetFilesFromInputFolder();
+            List<string> inputFiles = _fileService.GetFilesFromInputFolder();
             inputFiles.AsParallel().ForAll((fname) => ProcessFile(_fileService.GetFileReaderCreator(fname), fname));
         }
 
