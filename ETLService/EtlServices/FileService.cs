@@ -2,6 +2,7 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Text;
+using ETLService.Extractors.Readers.Сreators;
 
 namespace ETLService.EtlServices
 {
@@ -33,6 +34,17 @@ namespace ETLService.EtlServices
             string filePath = Path.Combine(_currentSubfolder, $"output{_currentFileNumber}.json");
             using var newFile = File.Create(filePath);
             return filePath;
+        }
+
+        public FileReaderCreator GetFileReaderCreator(string fname)
+        {
+            string extension = Path.GetExtension(fname);
+            FileReaderCreator readerCreator = null;
+            if (extension == ".txt")
+                readerCreator = new TxtReaderCreator();
+            else if (extension == ".csv")
+                readerCreator = new CsvReaderCreator();
+            return readerCreator;
         }
     }
 }

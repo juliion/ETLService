@@ -3,10 +3,10 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using ETLService.Extractors.Readers;
+using ETLService.Extractors.Readers.Сreators;
 using ETLService.Transformers;
 using ETLService.Loaders.Writers;
 using ETLService.Models;
-using ETLService.Converters;
 
 namespace ETLService.EtlServices
 {
@@ -23,14 +23,14 @@ namespace ETLService.EtlServices
         {
             _fileService.CreateSubfolder();
             string[] inputFiles = _fileService.GetFilesFromInputFolder();
-            inputFiles.AsParallel().ForAll((fname) => ProcessFile(fname));
+            inputFiles.AsParallel().ForAll((fname) => ProcessFile(_fileService.GetFileReaderCreator(fname), fname));
         }
 
-        private void ProcessFile(string filename)
+        private void ProcessFile(FileReaderCreator readerCreator, string fname)
         {
             lock(locker)
             {
-                FileReader reader = new TxtReader(filename, new TransactionConverter());
+                FileReader reader = readerCreator.CreateReader(fname);
                 TransactionTransformer transformer = new TransactionTransformer();
                 FileWriter writer = new JSONWriter(_fileService.CreateFileInCurrSubfolder());
                 List<Transaction> transactions = reader.Extract();
