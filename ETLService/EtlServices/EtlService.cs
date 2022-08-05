@@ -40,6 +40,7 @@ namespace ETLService.EtlServices
                 List<Transaction> transactions = reader.Extract();
                 List<TransactionsByCity> transformedTransactions = transformer.Transform(transactions);
                 writer.Load(transformedTransactions);
+                _fileService.MoveDoneFile(fname);
                 _metaLog.ParsedFiles++;
             }
         }

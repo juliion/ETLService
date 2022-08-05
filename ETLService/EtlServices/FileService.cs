@@ -13,12 +13,14 @@ namespace ETLService.EtlServices
     {
         private readonly string _outputPath;
         private readonly string _inputPath;
+        private readonly string _donePath;
         private string _currentSubfolder;
         private int _currentFileNumber;
-        public FileService(string outputPath, string inputPath)
+        public FileService(string outputPath, string inputPath, string donePath)
         {
             _outputPath = outputPath;
             _inputPath = inputPath;
+            _donePath = donePath;
             _currentFileNumber = 0;
         }
 
@@ -39,6 +41,13 @@ namespace ETLService.EtlServices
             string filePath = Path.Combine(_currentSubfolder, $"output{_currentFileNumber}.json");
             using var newFile = File.Create(filePath);
             return filePath;
+        }
+
+        public void MoveDoneFile(string doneFile)
+        {
+            string currfilePath = Path.Combine(_inputPath, doneFile);
+            string donefilePath = Path.Combine(_donePath, Path.GetFileName(doneFile));
+            File.Move(currfilePath, donefilePath);
         }
 
         private bool FileHasTxtExtension(string filename) => Path.GetExtension(filename) == ".txt";
