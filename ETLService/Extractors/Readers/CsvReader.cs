@@ -4,12 +4,13 @@ using System.Collections.Generic;
 using System.Text;
 using ETLService.Models;
 using ETLService.Converters;
+using ETLService.Metalog;
 
 namespace ETLService.Extractors.Readers
 {
     public class CsvReader : FileReader
     {
-        public CsvReader(string filename, TransactionConverter converter) : base(filename, converter)
+        public CsvReader(string filename, TransactionConverter converter, ref MetaLog metaLog) : base(filename, converter, ref metaLog)
         {
         }
 
@@ -26,8 +27,20 @@ namespace ETLService.Extractors.Readers
                         isHeader = false;
                     else
                     {
-                        Transaction transaction = _converter.StrToTransaction(line);
-                        transactions.Add(transaction);
+                        try
+                        {
+                            Transaction transaction = _converter.StrToTransaction(line);
+                            transactions.Add(transaction);
+                            _metaLog.ParsedLines++;
+
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e.Message);
+                            _metaLog.FoundErrors++;
+                            if (!_metaLog.InvalidFiles.Contains(_filename))
+                                _metaLog.InvalidFiles.Add(_filename);
+                        }
                     }
                 }
             }

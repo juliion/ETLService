@@ -4,6 +4,8 @@ using System.IO;
 using System.Collections.Generic;
 using System.Text;
 using ETLService.Extractors.Readers.Сreators;
+using ETLService.Metalog;
+using System.Text.Json;
 
 namespace ETLService.EtlServices
 {
@@ -49,6 +51,12 @@ namespace ETLService.EtlServices
             else if (FileHasCvsExtension(filename))
                 readerCreator = new CsvReaderCreator();
             return readerCreator;
+        }
+        public void SaveMetaLog(MetaLog metalog)
+        {
+            string jsonString = JsonSerializer.Serialize(metalog);
+            string metalogFile = Path.Combine(_currentSubfolder, $"metalog.json");
+            File.WriteAllText(metalogFile, jsonString);
         }
     }
 }

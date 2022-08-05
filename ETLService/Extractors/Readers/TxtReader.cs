@@ -6,12 +6,13 @@ using System.Text;
 using System.Text.RegularExpressions;
 using ETLService.Models;
 using ETLService.Converters;
+using ETLService.Metalog;
 
 namespace ETLService.Extractors.Readers
 {
     public class TxtReader : FileReader
     {
-        public TxtReader(string filename, TransactionConverter converter) : base(filename, converter)
+        public TxtReader(string filename, TransactionConverter converter, ref MetaLog metaLog) : base(filename, converter, ref metaLog)
         {
         }
 
@@ -23,8 +24,19 @@ namespace ETLService.Extractors.Readers
                 string line;
                 while ((line = reader.ReadLine()) != null)
                 {
-                    Transaction transaction = _converter.StrToTransaction(line);
-                    transactions.Add(transaction);
+                    try
+                    {
+                        Transaction transaction = _converter.StrToTransaction(line);
+                        transactions.Add(transaction);
+                        _metaLog.ParsedLines++;
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                        _metaLog.FoundErrors++;
+                        if (!_metaLog.InvalidFiles.Contains(_filename))
+                            _metaLog.InvalidFiles.Add(_filename);
+                    }
                 }
             }
             return transactions;

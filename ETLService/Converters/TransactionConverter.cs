@@ -55,7 +55,7 @@ namespace ETLService.Converters
                 };
             }
             else
-                throw new Exception("Row isn't valid");
+                throw new Exception($"Row [{strTransaction}] isn't valid");
         }
     }
 }
