@@ -14,7 +14,8 @@ namespace ETLService.EtlServices
         private readonly string _outputPath;
         private readonly string _inputPath;
         private readonly string _donePath;
-        private string _currentSubfolder;
+        private string _currentSubfolderOutput;
+        private string _currentSubfolderDone;
         private int _currentFileNumber;
         public FileService(string outputPath, string inputPath, string donePath)
         {
@@ -30,15 +31,20 @@ namespace ETLService.EtlServices
             var filesList = new List<string>(filesArr);
             return filesList.Where((fname => FileHasTxtExtension(fname) || FileHasCvsExtension(fname))).ToList();
         }
-        public void CreateSubfolder()
+        public void CreateSubfolderForOutput()
         {
-            _currentSubfolder = Path.Combine(_outputPath, DateTime.Today.ToShortDateString());
-            Directory.CreateDirectory(_currentSubfolder);
+            _currentSubfolderOutput = Path.Combine(_outputPath, DateTime.Today.ToShortDateString());
+            Directory.CreateDirectory(_currentSubfolderOutput);
+        }
+        public void CreateSubfolderForDone()
+        {
+            _currentSubfolderDone = Path.Combine(_donePath, DateTime.Today.ToShortDateString());
+            Directory.CreateDirectory(_currentSubfolderDone);
         }
         public string CreateFileInCurrSubfolder()
         {
             _currentFileNumber++;
-            string filePath = Path.Combine(_currentSubfolder, $"output{_currentFileNumber}.json");
+            string filePath = Path.Combine(_currentSubfolderOutput, $"output{_currentFileNumber}.json");
             using var newFile = File.Create(filePath);
             return filePath;
         }
@@ -46,7 +52,7 @@ namespace ETLService.EtlServices
         public void MoveDoneFile(string doneFile)
         {
             string currfilePath = Path.Combine(_inputPath, doneFile);
-            string donefilePath = Path.Combine(_donePath, Path.GetFileName(doneFile));
+            string donefilePath = Path.Combine(_donePath, _currentSubfolderDone, $"done{_currentFileNumber}.txt");
             File.Move(currfilePath, donefilePath);
         }
 
@@ -64,7 +70,7 @@ namespace ETLService.EtlServices
         public void SaveMetaLog(MetaLog metalog)
         {
             string jsonString = JsonSerializer.Serialize(metalog);
-            string metalogFile = Path.Combine(_currentSubfolder, $"metalog.json");
+            string metalogFile = Path.Combine(_currentSubfolderOutput, $"metalog.json");
             File.WriteAllText(metalogFile, jsonString);
         }
     }

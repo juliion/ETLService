@@ -19,12 +19,13 @@ namespace ETLService.EtlServices
         public EtlService(FileService fileService)
         {
             _fileService = fileService;
+            _metaLog = new MetaLog();
         }
 
         public void Run()
         {
-            _metaLog = new MetaLog();
-            _fileService.CreateSubfolder();
+            _fileService.CreateSubfolderForOutput();
+            _fileService.CreateSubfolderForDone();
             List<string> inputFiles = _fileService.GetFilesFromInputFolder();
             inputFiles.AsParallel().ForAll((fname) => ProcessFile(_fileService.GetFileReaderCreator(fname), fname));
             _fileService.SaveMetaLog(_metaLog);
